@@ -33,21 +33,35 @@ def getdate():
 
 def post_twitter(img_url, text, filename):
     response = requests.get(img_url)
-    image = Image.open(BytesIO(response.content))
-    b = BytesIO()
-    image.save(b, "PNG")
-    b.seek(0)
-    media = api.media_upload(filename=filename, file=b)
-    response = client.create_tweet(text=text, media_ids=[media.media_id])
-    return response
+    if response.status_code == 200:
+        image = Image.open(BytesIO(response.content))
+        b = BytesIO()
+        image.save(b, "PNG")
+        b.seek(0)
+        media = api.media_upload(filename=filename, file=b)
+        tweet = client.create_tweet(text=text, media_ids=[media.media_id])
+        return tweet
+    else:
+        return "Error"
 
 app = FastAPI()
+
 @app.post("/tapa_clarin")
 def tapa_clarin():
     year, month, day, weekday = getdate()
     imageUrl  = f"https://tapas.clarin.com/tapa/{year}/{month}/{day}/{year}{month}{day}_thumb.jpg"
     text = f"🇦🇷 La tapa de @clarincom de hoy, {day} de {months[int(month)-1]} de {year}"
     filename = f"clarin_{year}{month}{day}"
+    post_twitter(imageUrl, text, filename)
+    return status.HTTP_200_OK
+
+
+@app.post("/tapa_lanacion")
+def tapa_lanacion():
+    year, month, day, weekday = getdate()
+    imageUrl  = f"https://i.prcdn.co/img?file=2260{year}{month}{day}00000000001001&page=1&width=1200"
+    text = f"🔴 La tapa de @LANACION de hoy, {day} de {months[int(month)-1]} de {year}"
+    filename = f"lanacion_{year}{month}{day}"
     post_twitter(imageUrl, text, filename)
     return status.HTTP_200_OK
 
