@@ -23,7 +23,7 @@ client = tweepy.Client(
 months = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio',
           'julio', 'agosto', 'septiembre', 'octubre', 'noviembre']
 
-weekday = ['domingo', 'lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábado']
+weekdays = ['domingo', 'lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábado']
 
 def getdate():
   time_utc = pytz.timezone('UTC').localize(datetime.utcnow())
@@ -62,6 +62,25 @@ def tapa_lanacion():
     imageUrl  = f"https://i.prcdn.co/img?file=2260{year}{month}{day}00000000001001&page=1&width=1200"
     text = f"🔴 La tapa de @LANACION de hoy, {day} de {months[int(month)-1]} de {year}"
     filename = f"lanacion_{year}{month}{day}"
+    post_twitter(imageUrl, text, filename)
+    return status.HTTP_200_OK
+
+
+@app.post("/tapa_elpais_uy")
+def tapa_elpais_uy():
+    year, month, day, weekday = getdate()
+    imageUrl  = f"https://i.prcdn.co/img?file=9vl8{year}{month}{day}00000000001001&page=1"
+    text = f"🇺🇾 La tapa de @elpaisuy de hoy, {day} de {months[int(month)-1]} de {year}"
+    filename = f"elpaisuy_{year}{month}{day}"
+    post_twitter(imageUrl, text, filename)
+    return status.HTTP_200_OK
+
+@app.post("/tapa_ole")
+def tapa_ole():
+    year, month, day, weekday = getdate()
+    imageUrl  = f"https://tapas2.ole.com.ar/tapa/{year}/{month}/{day}/OLE_{year}{month}{day}_01.jpg"
+    text = f"⚽️ La tapa de @DiarioOle de este {weekdays[int(weekday)]} {day} de {months[int(month)-1]} de {year}"
+    filename = f"ole_{year}{month}{day}"
     post_twitter(imageUrl, text, filename)
     return status.HTTP_200_OK
 
