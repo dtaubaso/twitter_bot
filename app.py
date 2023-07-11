@@ -233,9 +233,8 @@ def tapa_lemonde():
 @app.get("/prueba_threads")
 def prueba_threads():
     year, month, day, weekday = getdate()
-    imageUrl  = f"https://img.kiosko.net/{year}/{month}/{day}/fr/lemonde.jpg"
-    text = f"🇫🇷 La tapa de @lemondefr de este {weekdays[int(weekday)]}"
-    filename = f"tapa_lemondefr_{year}{month}{day}"
+    imageUrl  = f"https://tapas2.ole.com.ar/tapa/{year}/{month}/{day}/OLE_{year}{month}{day}_01.jpg"
+    text = f"⚽️ La tapa de @DiarioOle de este {weekdays[int(weekday)]} {day} de {months[int(month)-1]} de {year}"
     funcion_threads(text, imageUrl)
     return status.HTTP_200_OK
 
