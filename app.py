@@ -60,8 +60,7 @@ async def post_threads(text, image):
 def funcion_threads(text, image):
   async def activar_post(text, image):
     await post_threads(text, image)
-  loop = asyncio.get_event_loop()
-  loop.run_until_complete(activar_post(text, image))
+  asyncio.run(activar_post(text, image))
 
 app = FastAPI()
 
@@ -229,5 +228,14 @@ def tapa_lemonde():
     text = f"🇫🇷 La tapa de @lemondefr de este {weekdays[int(weekday)]}"
     filename = f"tapa_lemondefr_{year}{month}{day}"
     post_twitter(imageUrl, text, filename)
+    return status.HTTP_200_OK
+
+@app.get("/prueba_threads")
+def prueba_threads():
+    year, month, day, weekday = getdate()
+    imageUrl  = f"https://img.kiosko.net/{year}/{month}/{day}/fr/lemonde.jpg"
+    text = f"🇫🇷 La tapa de @lemondefr de este {weekdays[int(weekday)]}"
+    filename = f"tapa_lemondefr_{year}{month}{day}"
+    funcion_threads(text, imageUrl)
     return status.HTTP_200_OK
 
