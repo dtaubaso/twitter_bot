@@ -179,6 +179,7 @@ def tapa_gestion():
     text = f"🇵🇪 La tapa de @Gestionpe de este {weekdays[int(weekday)]}"
     filename = f"tapa_gestion_{year}{month}{day}"
     post_twitter(imageUrl, text, filename)
+    funcion_threads(text, imageUrl)
     return status.HTTP_200_OK
 
 @app.post("/tapa_eluniversal")
