@@ -1,13 +1,16 @@
-import tweepy, requests, pytz, os, lxml.html, re
+import tweepy, requests, pytz, os, lxml.html, re, asyncio
 from io import BytesIO
 from PIL import Image
 from datetime import datetime
 from fastapi import FastAPI, status
+from threads_api.src.threads_api import ThreadsAPI
 
 consumer_key = os.environ['API_KEY']
 consumer_secret = os.environ['API_SECRET']
 access_token = os.environ['ACCES_TOKEN']
 access_token_secret = os.environ['ACCES_TOKEN_SECRET']
+threads_user = os.environ['THREADS_USER']
+threads_password = os.environ['THREADS_PASSWORD']
 
 auth = tweepy.OAuth1UserHandler(
     consumer_key, consumer_secret, access_token, access_token_secret)
@@ -43,6 +46,22 @@ def post_twitter(img_url, text, filename):
         return tweet
     else:
         return "Error"
+
+async def post_threads(text, image):
+    threads_api = ThreadsAPI()
+    await threads_api.login(threads_user, threads_password)
+    result = await threads_api.post(text, image_path=image)
+
+    if result:
+        print("Post has been successfully posted")
+    else:
+        print("Unable to post.")
+
+def funcion_threads(text, image):
+  async def activar_post(text, image):
+    await post_threads(text, image)
+  loop = asyncio.get_event_loop()
+  loop.run_until_complete(activar_post(text, image))
 
 app = FastAPI()
 
@@ -150,6 +169,7 @@ def tapa_losandes():
     text = f"La tapa de @LosAndesDiario de este {weekdays[int(weekday)]}"
     filename = f"tapa_losandes_{year}{month}{day}"
     post_twitter(imageUrl, text, filename)
+    funcion_threads(text, imageUrl)
     return status.HTTP_200_OK
 
 @app.post("/tapa_gestion")
