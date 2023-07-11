@@ -71,6 +71,7 @@ def tapa_clarin():
     text = f"🇦🇷 La tapa de @clarincom de hoy, {day} de {months[int(month)-1]} de {year}"
     filename = f"clarin_{year}{month}{day}"
     post_twitter(imageUrl, text, filename)
+    funcion_threads(text, imageUrl)
     return status.HTTP_200_OK
 
 
@@ -81,6 +82,7 @@ def tapa_lanacion():
     text = f"🔴 La tapa de @LANACION de hoy, {day} de {months[int(month)-1]} de {year}"
     filename = f"lanacion_{year}{month}{day}"
     post_twitter(imageUrl, text, filename)
+    funcion_threads(text, imageUrl)
     return status.HTTP_200_OK
 
 
@@ -100,6 +102,7 @@ def tapa_ole():
     text = f"⚽️ La tapa de @DiarioOle de este {weekdays[int(weekday)]} {day} de {months[int(month)-1]} de {year}"
     filename = f"ole_{year}{month}{day}"
     post_twitter(imageUrl, text, filename)
+    funcion_threads(text, imageUrl)
     return status.HTTP_200_OK
 
 
@@ -219,6 +222,7 @@ def tapa_thetimes():
     text = f"🇬🇧 La tapa de @thetimes de este {weekdays[int(weekday)]}"
     filename = f"tapa_thetimes_{year}{month}{day}"
     post_twitter(imageUrl, text, filename)
+    funcion_threads(text, imageUrl)
     return status.HTTP_200_OK
 
 @app.post("/tapa_lemonde")
