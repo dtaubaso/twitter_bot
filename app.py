@@ -58,7 +58,7 @@ async def post_threads(text, image):
         else:
             print("Unable to post.")
     except Exception as e:
-        print(e)
+        print(f"Error: {e}")
 
 def funcion_threads(text, image):
   async def activar_post(text, image):
