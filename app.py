@@ -3,14 +3,14 @@ from io import BytesIO
 from PIL import Image
 from datetime import datetime
 from fastapi import FastAPI, status
-from threads_api.src.threads_api import ThreadsAPI
+#from threads_api.src.threads_api import ThreadsAPI
 
 consumer_key = os.environ['API_KEY']
 consumer_secret = os.environ['API_SECRET']
 access_token = os.environ['ACCES_TOKEN']
 access_token_secret = os.environ['ACCES_TOKEN_SECRET']
-threads_user = os.environ['THREADS_USER']
-threads_password = os.environ['THREADS_PASSWORD']
+#threads_user = os.environ['THREADS_USER']
+#threads_password = os.environ['THREADS_PASSWORD']
 
 auth = tweepy.OAuth1UserHandler(
     consumer_key, consumer_secret, access_token, access_token_secret)
@@ -46,7 +46,7 @@ def post_twitter(img_url, text, filename):
         return tweet
     else:
         return "Error"
-
+'''
 async def post_threads(text, image):
     try:
         threads_api = ThreadsAPI()
@@ -60,10 +60,12 @@ async def post_threads(text, image):
     except Exception as e:
         print(f"Error: {e}")
 
+
 def funcion_threads(text, image):
   async def activar_post(text, image):
     await post_threads(text, image)
   asyncio.run(activar_post(text, image))
+'''
 
 app = FastAPI()
 
@@ -74,7 +76,7 @@ def tapa_clarin():
     text = f"🇦🇷 La tapa de @clarincom de hoy, {day} de {months[int(month)-1]} de {year}"
     filename = f"clarin_{year}{month}{day}"
     post_twitter(imageUrl, text, filename)
-    funcion_threads(text, imageUrl)
+    #funcion_threads(text, imageUrl)
     return status.HTTP_200_OK
 
 
@@ -85,7 +87,7 @@ def tapa_lanacion():
     text = f"🔴 La tapa de @LANACION de hoy, {day} de {months[int(month)-1]} de {year}"
     filename = f"lanacion_{year}{month}{day}"
     post_twitter(imageUrl, text, filename)
-    funcion_threads(text, imageUrl)
+    #funcion_threads(text, imageUrl)
     return status.HTTP_200_OK
 
 
@@ -105,7 +107,7 @@ def tapa_ole():
     text = f"⚽️ La tapa de @DiarioOle de este {weekdays[int(weekday)]} {day} de {months[int(month)-1]} de {year}"
     filename = f"ole_{year}{month}{day}"
     post_twitter(imageUrl, text, filename)
-    funcion_threads(text, imageUrl)
+    #funcion_threads(text, imageUrl)
     return status.HTTP_200_OK
 
 
@@ -164,7 +166,7 @@ def tapa_larepublica():
     text = f"🇵🇪 La tapa de @larepublica_pe de hoy, {day} de {months[int(month)-1]} de {year}"
     filename = f"larepublica_pe_{year}{month}{day}"
     post_twitter(imageUrl, text, filename)
-    funcion_threads(text, imageUrl)
+    #funcion_threads(text, imageUrl)
     return status.HTTP_200_OK
 
 
@@ -175,7 +177,7 @@ def tapa_losandes():
     text = f"La tapa de @LosAndesDiario de este {weekdays[int(weekday)]}"
     filename = f"tapa_losandes_{year}{month}{day}"
     post_twitter(imageUrl, text, filename)
-    funcion_threads(text, imageUrl)
+    #funcion_threads(text, imageUrl)
     return status.HTTP_200_OK
 
 @app.post("/tapa_gestion")
@@ -185,7 +187,7 @@ def tapa_gestion():
     text = f"🇵🇪 La tapa de @Gestionpe de este {weekdays[int(weekday)]}"
     filename = f"tapa_gestion_{year}{month}{day}"
     post_twitter(imageUrl, text, filename)
-    funcion_threads(text, imageUrl)
+    #funcion_threads(text, imageUrl)
     return status.HTTP_200_OK
 
 @app.post("/tapa_eluniversal")
@@ -226,7 +228,7 @@ def tapa_thetimes():
     text = f"🇬🇧 La tapa de @thetimes de este {weekdays[int(weekday)]}"
     filename = f"tapa_thetimes_{year}{month}{day}"
     post_twitter(imageUrl, text, filename)
-    funcion_threads(text, imageUrl)
+    #funcion_threads(text, imageUrl)
     return status.HTTP_200_OK
 
 @app.post("/tapa_lemonde")
@@ -238,11 +240,5 @@ def tapa_lemonde():
     post_twitter(imageUrl, text, filename)
     return status.HTTP_200_OK
 
-@app.get("/prueba_threads")
-def prueba_threads():
-    year, month, day, weekday = getdate()
-    imageUrl  = f"https://tapas2.ole.com.ar/tapa/{year}/{month}/{day}/OLE_{year}{month}{day}_01.jpg"
-    text = f"⚽️ La tapa de @DiarioOle de este {weekdays[int(weekday)]} {day} de {months[int(month)-1]} de {year}"
-    funcion_threads(text, imageUrl)
-    return status.HTTP_200_OK
+
 
