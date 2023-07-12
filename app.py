@@ -48,14 +48,17 @@ def post_twitter(img_url, text, filename):
         return "Error"
 
 async def post_threads(text, image):
-    threads_api = ThreadsAPI()
-    await threads_api.login(threads_user, threads_password)
-    result = await threads_api.post(text, image_path=image)
+    try:
+        threads_api = ThreadsAPI()
+        await threads_api.login(threads_user, threads_password)
+        result = await threads_api.post(text, image_path=image)
 
-    if result:
-        print("Post has been successfully posted")
-    else:
-        print("Unable to post.")
+        if result:
+            print("Post has been successfully posted")
+        else:
+            print("Unable to post.")
+    except Exception as e:
+        print(e)
 
 def funcion_threads(text, image):
   async def activar_post(text, image):
@@ -161,6 +164,7 @@ def tapa_larepublica():
     text = f"🇵🇪 La tapa de @larepublica_pe de hoy, {day} de {months[int(month)-1]} de {year}"
     filename = f"larepublica_pe_{year}{month}{day}"
     post_twitter(imageUrl, text, filename)
+    funcion_threads(text, imageUrl)
     return status.HTTP_200_OK
 
 
