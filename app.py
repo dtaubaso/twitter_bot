@@ -1,4 +1,4 @@
-import tweepy, requests, pytz, os, lxml.html, re, asyncio
+import tweepy, requests, pytz, os, lxml.html, re, asyncio, json
 from io import BytesIO
 from PIL import Image
 from datetime import datetime
@@ -240,5 +240,18 @@ def tapa_lemonde():
     post_twitter(imageUrl, text, filename)
     return status.HTTP_200_OK
 
+
+
+@app.post("/tapa_lanacionpy")
+def tapa_lanacionpy():
+    year, month, day, weekday = getdate()
+    js_url = "https://www.lanacion.com.py/pf/api/v3/content/fetch/content-search-feed?query=%7B%22feedFrom%22%3A0%2C%22feedQuery%22%3A%22taxonomy.sites._id%3A%2522%2Ftapa%2522%22%2C%22feedSize%22%3A1%2C%22website%22%3A%22lanacionpy%22%7D&_website=lanacionpy"
+    res = requests.get(js_url)
+    tapa_object = json.loads(res.text)
+    imageUrl  = tapa_object['content_elements'][0]['promo_items']['basic']['featured_image']['url']
+    text = f"🇵🇾 La tapa de @lanacionpy de este {weekdays[int(weekday)]}"
+    filename = f"tapa_lanacionpy_{year}{month}{day}"
+    post_twitter(imageUrl, text, filename)
+    return status.HTTP_200_OK
 
 
