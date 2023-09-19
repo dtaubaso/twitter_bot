@@ -3,14 +3,14 @@ from io import BytesIO
 from PIL import Image
 from datetime import datetime
 from fastapi import FastAPI, status
-#from threads_api.src.threads_api import ThreadsAPI
+from atprototools import Session
 
 consumer_key = os.environ['API_KEY']
 consumer_secret = os.environ['API_SECRET']
 access_token = os.environ['ACCES_TOKEN']
 access_token_secret = os.environ['ACCES_TOKEN_SECRET']
-#threads_user = os.environ['THREADS_USER']
-#threads_password = os.environ['THREADS_PASSWORD']
+BSKY_USERNAME = os.environ['BSKY_USERNAME']
+BSKY_PASSWORD = os.environ['BSKY_PASSWORD']
 
 auth = tweepy.OAuth1UserHandler(
     consumer_key, consumer_secret, access_token, access_token_secret)
@@ -23,10 +23,13 @@ client = tweepy.Client(
     access_token=access_token,
     access_token_secret=access_token_secret)
 
+bsky_client_session = Session(BSKY_USERNAME, BSKY_PASSWORD)
+
 months = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio',
           'julio', 'agosto', 'septiembre', 'octubre', 'noviembre']
 
 weekdays = ['domingo', 'lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábado']
+
 
 def getdate():
   time_utc = pytz.timezone('UTC').localize(datetime.utcnow())
@@ -46,26 +49,35 @@ def post_twitter(img_url, text, filename):
         return tweet
     else:
         return "Error"
-'''
-async def post_threads(text, image):
-    try:
-        threads_api = ThreadsAPI()
-        await threads_api.login(threads_user, threads_password)
-        result = await threads_api.post(text, image_path=image)
 
-        if result:
-            print("Post has been successfully posted")
+def post_blusky(image_url, text):
+    minimum_quality = 50
+    quality = 95      
+    target = 900000
+    img_file = requests.get(image_url).content
+    image = Image.open(BytesIO(img_file))
+    while True:
+        b = BytesIO()
+        image.save(b, "JPEG", quality=quality)
+        b.seek(0)
+        file_size = b.tell()
+        if file_size <= target or quality <= minimum_quality:
+            b.close()
+            break
         else:
-            print("Unable to post.")
-    except Exception as e:
-        print(f"Error: {e}")
+            quality -= 5
+    b = BytesIO()
+    image.save(b, "JPEG", quality=quality)
+    b.seek(0)
+    try:
+        res = bsky_client_session.postBloot("cat", "image.png")
+        return res
+    except Exception:
+        return "Error"
 
 
-def funcion_threads(text, image):
-  async def activar_post(text, image):
-    await post_threads(text, image)
-  asyncio.run(activar_post(text, image))
-'''
+
+
 
 app = FastAPI()
 
@@ -76,7 +88,7 @@ def tapa_clarin():
     text = f"🇦🇷 La tapa de @clarincom de hoy, {day} de {months[int(month)-1]} de {year}"
     filename = f"clarin_{year}{month}{day}"
     post_twitter(imageUrl, text, filename)
-    #funcion_threads(text, imageUrl)
+    post_blusky(imageUrl, text)
     return status.HTTP_200_OK
 
 
@@ -87,7 +99,7 @@ def tapa_lanacion():
     text = f"🔴 La tapa de @LANACION de hoy, {day} de {months[int(month)-1]} de {year}"
     filename = f"lanacion_{year}{month}{day}"
     post_twitter(imageUrl, text, filename)
-    #funcion_threads(text, imageUrl)
+    post_blusky(imageUrl, text)
     return status.HTTP_200_OK
 
 
@@ -98,6 +110,7 @@ def tapa_elpais_uy():
     text = f"🇺🇾 La tapa de @elpaisuy de hoy, {day} de {months[int(month)-1]} de {year}"
     filename = f"elpaisuy_{year}{month}{day}"
     post_twitter(imageUrl, text, filename)
+    post_blusky(imageUrl, text)
     return status.HTTP_200_OK
 
 @app.post("/tapa_ole")
@@ -107,7 +120,7 @@ def tapa_ole():
     text = f"⚽️ La tapa de @DiarioOle de este {weekdays[int(weekday)]} {day} de {months[int(month)-1]} de {year}"
     filename = f"ole_{year}{month}{day}"
     post_twitter(imageUrl, text, filename)
-    #funcion_threads(text, imageUrl)
+    post_blusky(imageUrl, text)
     return status.HTTP_200_OK
 
 
@@ -118,6 +131,7 @@ def tapa_lavoz():
     text = f"🗞️ La tapa de @LAVOZcomar de este {weekdays[int(weekday)]} {day} de {months[int(month)-1]} de {year}"
     filename = f"lavoz_{year}{month}{day}"
     post_twitter(imageUrl, text, filename)
+    post_blusky(imageUrl, text)
     return status.HTTP_200_OK
 
 @app.post("/tapa_usatoday")
@@ -127,6 +141,7 @@ def tapa_usatoday():
     text = f"🇺🇸 La tapa de @USATODAY de este {weekdays[int(weekday)]}"
     filename = f"usatoday_{year}{month}{day}"
     post_twitter(imageUrl, text, filename)
+    post_blusky(imageUrl, text)
     return status.HTTP_200_OK
 
 @app.post("/tapa_elpais_es")
@@ -136,6 +151,7 @@ def tapa_elpais_es():
     text = f"🇪🇸 La tapa de @el_pais de este {weekdays[int(weekday)]}"
     filename = f"elpais_es_{year}{month}{day}"
     post_twitter(imageUrl, text, filename)
+    post_blusky(imageUrl, text)
     return status.HTTP_200_OK
 
 @app.post("/tapa_folha")
@@ -148,6 +164,7 @@ def tapa_folha():
     text = f"🇧🇷 La tapa de @folha de este {weekdays[int(weekday)]}"
     filename = f"folha_{year}{month}{day}"
     post_twitter(imageUrl, text, filename)
+    post_blusky(imageUrl, text)
     return status.HTTP_200_OK
 
 @app.post("/tapa_mercurio")
@@ -157,6 +174,7 @@ def tapa_mercurio():
     text = f"🇨🇱 La tapa de @ElMercurio_cl de hoy, {day} de {months[int(month)-1]} de {year}"
     filename = f"mercurio_{year}{month}{day}"
     post_twitter(imageUrl, text, filename)
+    post_blusky(imageUrl, text)
     return status.HTTP_200_OK
 
 @app.post("/tapa_larepublica")
@@ -167,6 +185,7 @@ def tapa_larepublica():
     filename = f"larepublica_pe_{year}{month}{day}"
     post_twitter(imageUrl, text, filename)
     #funcion_threads(text, imageUrl)
+    post_blusky(imageUrl, text)
     return status.HTTP_200_OK
 
 
@@ -177,7 +196,7 @@ def tapa_losandes():
     text = f"La tapa de @LosAndesDiario de este {weekdays[int(weekday)]}"
     filename = f"tapa_losandes_{year}{month}{day}"
     post_twitter(imageUrl, text, filename)
-    #funcion_threads(text, imageUrl)
+    post_blusky(imageUrl, text)
     return status.HTTP_200_OK
 
 @app.post("/tapa_gestion")
@@ -187,7 +206,7 @@ def tapa_gestion():
     text = f"🇵🇪 La tapa de @Gestionpe de este {weekdays[int(weekday)]}"
     filename = f"tapa_gestion_{year}{month}{day}"
     post_twitter(imageUrl, text, filename)
-    #funcion_threads(text, imageUrl)
+    post_blusky(imageUrl, text)
     return status.HTTP_200_OK
 
 @app.post("/tapa_eluniversal")
@@ -201,6 +220,7 @@ def tapa_eluniversal():
     text = f"🇲🇽 La tapa de @El_Universal_Mx de hoy, {day} de {months[int(month)-1]} de {year}"
     filename = f"tapa_eluniversal_{year}{month}{day}"
     post_twitter(imageUrl, text, filename)
+    post_blusky(imageUrl, text)
     return status.HTTP_200_OK
 
 @app.post("/tapa_yedioth")
@@ -210,6 +230,7 @@ def tapa_yedioth():
     text = f"🇮🇱 La tapa de @YediotAhronot de este {weekdays[int(weekday)]}"
     filename = f"tapa_yedioth_{year}{month}{day}"
     post_twitter(imageUrl, text, filename)
+    post_blusky(imageUrl, text)
     return status.HTTP_200_OK
 
 @app.post("/tapa_wsj")
@@ -219,6 +240,7 @@ def tapa_wsj():
     text = f"La tapa del @WSJ de este {weekdays[int(weekday)]}"
     filename = f"tapa_wsj_{year}{month}{day}"
     post_twitter(imageUrl, text, filename)
+    post_blusky(imageUrl, text)
     return status.HTTP_200_OK
 
 @app.post("/tapa_thetimes")
@@ -228,7 +250,7 @@ def tapa_thetimes():
     text = f"🇬🇧 La tapa de @thetimes de este {weekdays[int(weekday)]}"
     filename = f"tapa_thetimes_{year}{month}{day}"
     post_twitter(imageUrl, text, filename)
-    #funcion_threads(text, imageUrl)
+    post_blusky(imageUrl, text)
     return status.HTTP_200_OK
 
 @app.post("/tapa_lemonde")
@@ -238,6 +260,7 @@ def tapa_lemonde():
     text = f"🇫🇷 La tapa de @lemondefr de este {weekdays[int(weekday)]}"
     filename = f"tapa_lemondefr_{year}{month}{day}"
     post_twitter(imageUrl, text, filename)
+    post_blusky(imageUrl, text)
     return status.HTTP_200_OK
 
 
@@ -252,6 +275,7 @@ def tapa_lanacionpy():
     text = f"🇵🇾 La tapa de @lanacionpy de este {weekdays[int(weekday)]}"
     filename = f"tapa_lanacionpy_{year}{month}{day}"
     post_twitter(imageUrl, text, filename)
+    post_blusky(imageUrl, text)
     return status.HTTP_200_OK
 
 
