@@ -1,4 +1,4 @@
-import tweepy, requests, pytz, os, lxml.html, re, asyncio, json
+import tweepy, requests, pytz, os, lxml.html, re, asyncio, json, tempfile
 from io import BytesIO
 from PIL import Image
 from datetime import datetime
@@ -54,26 +54,31 @@ def post_blusky(image_url, text):
     minimum_quality = 50
     quality = 95      
     target = 900000
-    img_file = requests.get(image_url).content
+    img_path = f'{tempfile.gettempdir()}{os.path.sep}image.png'
+    img = requests.get(image_url)
+    img_file = None
+    if img.status_code == 200:
+      img_file = img.content
+    else:
+      return "Error"
     image = Image.open(BytesIO(img_file))
     while True:
         b = BytesIO()
         image.save(b, "JPEG", quality=quality)
         b.seek(0)
         file_size = b.tell()
+        print(file_size)
         if file_size <= target or quality <= minimum_quality:
             b.close()
             break
         else:
             quality -= 5
-    b = BytesIO()
-    image.save(b, "JPEG", quality=quality)
-    b.seek(0)
+    image.save(img_path, "JPEG", quality=quality)
     try:
-        res = bsky_client_session.postBloot(text, b)
-        return res
-    except Exception:
-        return "Error"
+        res = bsky_client_session.postBloot(text, img_path)
+        return res.content
+    except Exception as e:
+        return e
 
 
 
