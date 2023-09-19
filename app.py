@@ -70,7 +70,7 @@ def post_blusky(image_url, text):
     image.save(b, "JPEG", quality=quality)
     b.seek(0)
     try:
-        res = bsky_client_session.postBloot("cat", "image.png")
+        res = bsky_client_session.postBloot(text, b)
         return res
     except Exception:
         return "Error"
