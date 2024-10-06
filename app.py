@@ -217,9 +217,9 @@ def tapa_gestion():
 @app.post("/tapa_eluniversal")
 def tapa_eluniversal():
     year, month, day, weekday = getdate()
-    res = requests.get("https://www.eluniversal.com.mx/")
+    res = requests.get("https://www.eluniversal.com.mx/portada-impresa/")
     tree = lxml.html.fromstring(res.content)
-    src_data = tree.xpath("//picture[@class='portada__pic flex']/img/@data-src")[0]
+    src_data = tree.xpath("//picture[@class='printed-grid__pic block w-full justify-center flex']/img/@data-src")[0]
     img_partial_url = re.sub(r".*(cloudfront.*)",r"\1", src_data)
     imageUrl = f"https://{img_partial_url}"
     text = f"🇲🇽 La tapa de @El_Universal_Mx de hoy, {day} de {months[int(month)-1]} de {year}"
@@ -284,3 +284,13 @@ def tapa_lanacionpy():
     return status.HTTP_200_OK
 
 
+@app.post("/tapa_nypost")
+def tapa_nypost():
+    year, month, day, weekday = getdate()
+    day = day.split("0")[-1] if day.startswith("0") else day
+    imageUrl  = f"https://nypost.com/wp-content/uploads/sites/2/{year}/{month}/Front-Cover-{month}-{day}-{year[2:]}.jpg"
+    text = f"🇺🇸 La tapa de @nypost de hoy, {day} de {months[int(month)-1]} de {year}"
+    filename = f"nypost_{year}{month}{day}"
+    post_twitter(imageUrl, text, filename)
+    post_blusky(imageUrl, text)
+    return status.HTTP_200_OK
