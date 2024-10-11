@@ -288,7 +288,10 @@ def tapa_lanacionpy():
 def tapa_nypost():
     year, month, day, weekday = getdate()
     day = day.split("0")[-1] if day.startswith("0") else day
-    imageUrl  = f"https://nypost.com/wp-content/uploads/sites/2/{year}/{month}/Front-Cover-{month}-{day}-{year[2:]}.jpg"
+    imageUrl  = f"https://nypost.com/wp-content/uploads/sites/2/{year}/{month}/Front-Cover-{month}-{day}-{year}.jpg"
+    res = requests.get(imageUrl)
+    if res.status_code != 200:
+        imageUrl = imageUrl.replace("Cover", "Page")
     text = f"🇺🇸 La tapa de @nypost de hoy, {day} de {months[int(month)-1]} de {year}"
     filename = f"nypost_{year}{month}{day}"
     post_twitter(imageUrl, text, filename)
