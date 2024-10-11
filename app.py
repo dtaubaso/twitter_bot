@@ -228,12 +228,13 @@ def tapa_eluniversal():
     post_blusky(imageUrl, text)
     return status.HTTP_200_OK
 
+# jerusalem post
 @app.post("/tapa_yedioth")
 def tapa_yedioth():
     year, month, day, weekday = getdate()
-    imageUrl  = f"https://img.kiosko.net/{year}/{month}/{day}/il/yedioth_ahronoth.jpg"
-    text = f"🇮🇱 La tapa de @YediotAhronot de este {weekdays[int(weekday)]}"
-    filename = f"tapa_yedioth_{year}{month}{day}"
+    imageUrl  = f"https://img.kiosko.net/{year}/{month}/{day}/il/jerusalem_post.jpg"
+    text = f"🇮🇱 La tapa de @Jerusalem_Post de este {weekdays[int(weekday)]}"
+    filename = f"tapa_jpost_{year}{month}{day}"
     post_twitter(imageUrl, text, filename)
     post_blusky(imageUrl, text)
     return status.HTTP_200_OK
