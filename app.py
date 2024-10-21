@@ -1,9 +1,11 @@
-import tweepy, requests, pytz, os, lxml.html, re, asyncio, json, tempfile
+import tweepy, requests, pytz, os, lxml.html, re, asyncio, json, tempfile, random
 from io import BytesIO
 from PIL import Image
 from datetime import datetime
 from fastapi import FastAPI, status
 from atprototools import Session
+
+ua = requests.get("https://raw.githubusercontent.com/dtaubaso/aux/main/user_agent").text.split("\n")
 
 consumer_key = os.environ['API_KEY']
 consumer_secret = os.environ['API_SECRET']
@@ -289,10 +291,11 @@ def tapa_lanacionpy():
 def tapa_nypost():
     year, month, day, weekday = getdate()
     day = day.split("0")[-1] if day.startswith("0") else day
-    imageUrl  = f"https://nypost.com/wp-content/uploads/sites/2/{year}/{month}/Front-Cover-{month}-{day}-{year}.jpg"
-    res = requests.get(imageUrl)
-    if res.status_code != 200:
-        imageUrl = imageUrl.replace("Cover", "Page")
+    headers = {'User-Agent': random.choice(ua)}
+    res = requests.get("https://nypost.com/covers/", headers=headers)
+    tree = lxml.html.fromstring(res.content)
+    img = tree.xpath("//div[@class='cover-swap']/img/@src")[0]
+    imageUrl  = img.split("?")[0]
     text = f"🇺🇸 La tapa de @nypost de hoy, {day} de {months[int(month)-1]} de {year}"
     filename = f"nypost_{year}{month}{day}"
     post_twitter(imageUrl, text, filename)
